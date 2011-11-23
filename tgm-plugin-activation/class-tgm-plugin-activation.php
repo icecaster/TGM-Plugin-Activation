@@ -121,6 +121,8 @@ class TGM_Plugin_Activation {
 		self::$instance =& $this;
 
 		$this->strings = array(
+			'parent_slug'						=> 'themes.php',
+			'parent_admin_url'					=> 'themes.php', 
 			'page_title'             			=> __( 'Install Required Plugins', $this->domain ),
 			'menu_title'             			=> __( 'Install Plugins', $this->domain ),
 			'instructions_install'   			=> __( 'The %1$s plugin is required for this theme. Click on the big blue button below to install and activate %1$s.', $this->domain ),
@@ -273,8 +275,8 @@ class TGM_Plugin_Activation {
 		foreach ( $this->plugins as $plugin ) {
 
 			if ( ! is_plugin_active( $plugin['file_path'] ) ) {
-
-				add_theme_page(
+				add_submenu_page(
+						$this->strings['parent_slug'],		// Parent Slug
 						$this->strings['page_title'],           // Page title
 						$this->strings['menu_title'],           // Menu title
 						'edit_theme_options',                   // Capability
@@ -386,7 +388,7 @@ class TGM_Plugin_Activation {
 
 			if ( isset( $_POST[sanitize_key( $plugin['name'] )] ) ) { // Don't do anything if the form has not been submitted
 
-				$url = wp_nonce_url( 'themes.php?page=' . $this->menu, 'tgmpa' ); // Make sure we are coming from the right page
+				$url = wp_nonce_url( $this->strings['parent_admin_url'].'?page=' . $this->menu, 'tgmpa' ); // Make sure we are coming from the right page
 				if ( false === ( $creds = request_filesystem_credentials( $url, $method, false, false, $fields ) ) )
 					return true;
 
@@ -435,7 +437,7 @@ class TGM_Plugin_Activation {
 
 				if ( is_wp_error( $activate ) ) {
 					echo '<div id="message" class="error"><p>' . $activate->get_error_message() . '</p></div>';
-					echo '<p><a href="' . add_query_arg( 'page', $this->menu, admin_url( 'themes.php' ) ) . '" title="' . esc_attr( $this->strings['return'] ) . '" target="_parent">' . __( 'Return to Required Plugins Installer', $this->domain ) . '</a></p>';
+					echo '<p><a href="' . add_query_arg( 'page', $this->menu, admin_url( $this->strings['parent_admin_url'] ) ) . '" title="' . esc_attr( $this->strings['return'] ) . '" target="_parent">' . __( 'Return to Required Plugins Installer', $this->domain ) . '</a></p>';
 					return true; // End it here if there is an error with automatic activation
 				}
 				else {
@@ -445,7 +447,7 @@ class TGM_Plugin_Activation {
 
 						if ( ! is_plugin_active( $plugin['file_path'] ) ) {
 
-							echo '<p><a href="' . add_query_arg( 'page', $this->menu, admin_url( 'themes.php' ) ) . '" title="' . esc_attr( $this->strings['return'] ) . '" target="_parent">' . __( 'Return to Required Plugins Installer', $this->domain ) . '</a></p>';
+							echo '<p><a href="' . add_query_arg( 'page', $this->menu, admin_url( $this->strings['parent_admin_url']) ) . '" title="' . esc_attr( $this->strings['return'] ) . '" target="_parent">' . __( 'Return to Required Plugins Installer', $this->domain ) . '</a></p>';
 							break;
 
 						}
@@ -552,7 +554,7 @@ class TGM_Plugin_Activation {
 								'TB_iframe' => 'true',
 								'width'     => '640',
 								'height'    => '500',
-							), admin_url( 'themes.php' ) );
+							), admin_url(  $this->strings['parent_admin_url']) );
 
 							$linked_plugin_groups[] .= '<a href="' . $url . '" class="thickbox" title="' . $plugin_group_single_name . '">' . $plugin_group_single_name . '</a>';
 
@@ -575,7 +577,7 @@ class TGM_Plugin_Activation {
 
 				/** Define all of the action links */
 				$action_links = apply_filters( 'tgmpa_notice_action_links', array(
-					'install'  => '<a href="' . add_query_arg( 'page', $this->menu, admin_url( 'themes.php' ) ) . '">' . __( 'Begin installing plugins', $this->domain ) . '</a>',
+					'install'  => '<a href="' . add_query_arg( 'page', $this->menu, admin_url( $this->strings['parent_admin_url'] ) ) . '">' . __( 'Begin installing plugins', $this->domain ) . '</a>',
 					'activate' => '<a href="' . admin_url( 'plugins.php' ) . '">' . __( 'Activate installed plugins', $this->domain ) . '</a>',
 					'dismiss'  => '<a class="dismiss-notice" href="' . add_query_arg( 'tgmpa-dismiss', 'dismiss_admin_notices' ) . '" target="_parent">' . __( 'Dismiss this notice', $this->domain ) . '</a>' )
 				);
